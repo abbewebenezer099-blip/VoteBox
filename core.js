@@ -11,6 +11,7 @@
   VB.libLoaded = !!window.supabase;
   VB.keysOk = keysOk;
   VB.configured = keysOk && VB.libLoaded;
+  VB.version = '2026-10-15-b';
   VB.sb = VB.configured ? window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY) : null;
 
   /* ---------- small helpers ---------- */
@@ -102,7 +103,8 @@
     }
     return (
       '<header class="top"><a class="brand" href="#/">' + LOGO + '<span>VoteBox</span></a>' + nav + '</header>' +
-      '<main class="wrap">' + inner + '</main>'
+      '<main class="wrap">' + inner + '</main>' +
+      '<p class="foot">VoteBox &middot; version ' + VB.version + '</p>'
     );
   };
 
