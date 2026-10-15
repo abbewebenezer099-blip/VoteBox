@@ -1,0 +1,10 @@
+# Secrets: never upload these to GitHub
+.env
+.env.*
+*.key
+secrets.*
+
+# Computer clutter
+.DS_Store
+Thumbs.db
+node_modules/

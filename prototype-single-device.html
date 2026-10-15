@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VoteBox – Online Voting</title>
+<style>
+:root{
+  --paper:#F3F6FB; --card:#FFFFFF; --ink:#16223B; --muted:#56627A; --line:#D3DAE8;
+  --blue:#2347B5; --blue-ink:#FFFFFF; --green:#1B7F4F; --red:#B8352A; --tick:#E6EDFC; --warn:#FFF3D6;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#0F1626; --card:#172039; --ink:#EAEFFA; --muted:#A0ABC4; --line:#2B3656;
+    --blue:#7F9DFF; --blue-ink:#0E1530; --green:#4FCB8A; --red:#FF8577; --tick:#222F5A; --warn:#3A3220;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 64px}
+header{padding:8px 0 16px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.5rem;letter-spacing:-.02em}
+.brand .box{width:26px;height:26px;border:3px solid var(--ink);border-radius:5px;display:grid;place-content:center}
+.brand .box::after{content:"";width:13px;height:7px;border-left:3px solid var(--blue);border-bottom:3px solid var(--blue);transform:rotate(-45deg) translate(1px,-1px)}
+.election{margin:6px 0 0;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.85rem;font-weight:600;border:1.5px solid currentColor}
+.pill.setup{color:var(--muted)} .pill.open{color:var(--green)} .pill.closed{color:var(--red)}
+nav{display:flex;gap:4px;border-bottom:2px solid var(--line);margin-bottom:20px}
+nav button{background:none;border:0;padding:10px 14px;font:inherit;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--blue)}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+h2{font-size:1.35rem;margin:0 0 4px;letter-spacing:-.01em}
+h3{font-size:1.1rem;margin:0 0 8px}
+p{margin:0 0 12px}
+.muted{color:var(--muted)}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:18px;margin-bottom:16px}
+.ballot-pos{border:2px solid var(--ink);border-radius:6px;padding:0;margin-bottom:18px;background:var(--card);overflow:hidden}
+.ballot-pos > .title{background:var(--ink);color:var(--paper);padding:8px 14px;font-weight:700}
+.ballot-pos > .body{padding:10px 14px 14px;display:grid;gap:8px}
+.choice{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1.5px solid var(--line);border-radius:6px;cursor:pointer;background:var(--card)}
+.choice:hover{border-color:var(--muted)}
+.choice input{appearance:none;-webkit-appearance:none;width:26px;height:26px;border:2px solid var(--ink);border-radius:4px;display:grid;place-content:center;flex:none;margin:0;background:var(--card)}
+.choice input::after{content:"";width:13px;height:7px;border-left:3px solid var(--blue-ink);border-bottom:3px solid var(--blue-ink);transform:rotate(-45deg) translate(1px,-1px);opacity:0}
+.choice input:checked{background:var(--blue);border-color:var(--blue)}
+.choice input:checked::after{opacity:1}
+.choice:has(input:checked){border-color:var(--blue);background:var(--tick)}
+.choice.abstain{border-style:dashed;color:var(--muted)}
+label.f{display:block;font-weight:600;margin:0 0 4px}
+input[type=text],input[type=password],input[type=number],textarea{width:100%;padding:10px 12px;font:inherit;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:6px}
+textarea{min-height:90px;resize:vertical}
+.row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.row > .grow{flex:1;min-width:160px}
+.btn{font:inherit;font-weight:700;padding:10px 16px;border-radius:6px;border:2px solid var(--blue);background:var(--blue);color:var(--blue-ink);cursor:pointer}
+.btn.secondary{background:transparent;color:var(--blue)}
+.btn.danger{border-color:var(--red);background:transparent;color:var(--red)}
+.btn.small{padding:4px 10px;font-size:.9rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.err{background:var(--warn);border-left:4px solid var(--red);padding:10px 12px;border-radius:4px;margin-bottom:12px}
+.ok{background:var(--tick);border-left:4px solid var(--green);padding:10px 12px;border-radius:4px;margin-bottom:12px}
+.cand{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.cand:last-child{border-bottom:0}
+table{width:100%;border-collapse:collapse;font-size:.95rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600}
+td.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;letter-spacing:.08em}
+.scroll{max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:6px}
+.res-row{margin:10px 0}
+.res-top{display:flex;justify-content:space-between;gap:8px;font-weight:600}
+.track{height:14px;background:var(--tick);border-radius:99px;overflow:hidden;margin-top:4px}
+.fill{height:100%;background:var(--blue);border-radius:99px}
+.fill.win{background:var(--green)}
+.winner{color:var(--green);font-weight:700}
+.big{font-size:2.2rem;font-weight:800;letter-spacing:.14em;font-family:ui-monospace,Menlo,Consolas,monospace}
+.center{text-align:center}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+@media (prefers-reduced-motion:no-preference){ .fill{transition:width .5s ease} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><span class="box" aria-hidden="true"></span> VoteBox</div>
+    <div class="election"><span id="elTitle"></span><span id="elStatus" class="pill"></span></div>
+  </header>
+  <nav role="tablist" aria-label="Sections">
+    <button role="tab" id="tab-setup" onclick="go('setup')">Set up</button>
+    <button role="tab" id="tab-vote" onclick="go('vote')">Vote</button>
+    <button role="tab" id="tab-results" onclick="go('results')">Results</button>
+  </nav>
+  <main id="main"></main>
+</div>
+
+<script>
+/* ---------- State (kept in memory; refreshing the page resets it) ---------- */
+const uid = () => Math.random().toString(36).slice(2, 8);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ALPHA = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+function mkCode(existing){
+  let c;
+  do { c=''; for(let i=0;i<6;i++) c += ALPHA[Math.floor(Math.random()*ALPHA.length)]; } while(existing.has(c));
+  existing.add(c); return c;
+}
+function sample(){
+  const used = new Set();
+  const people = ['Akosua Frimpong','Kojo Annan','Efua Sarpong','Nana Agyei','Mensah Tetteh','Adwoa Boakye'];
+  return {
+    title:'Student Representative Council Elections',
+    pin:'1234',
+    status:'setup',
+    positions:[
+      {id:uid(), name:'President', candidates:[{id:uid(),name:'Ama Mensah'},{id:uid(),name:'Kwame Boateng'},{id:uid(),name:'Esi Owusu'}]},
+      {id:uid(), name:'General Secretary', candidates:[{id:uid(),name:'Yaw Darko'},{id:uid(),name:'Abena Quartey'}]}
+    ],
+    voters: people.map(n => ({name:n, code:mkCode(used), used:false})),
+    ballots:[]
+  };
+}
+function blank(){
+  return {title:'New election', pin:'1234', status:'setup', positions:[], voters:[], ballots:[]};
+}
+
+let S = sample();
+let U = {tab:'setup', unlocked:false, step:'code', voter:null, draft:{}, error:'', msg:'', confirmReset:false};
+
+/* ---------- Helpers ---------- */
+function go(t){ U.tab=t; U.error=''; U.msg=''; U.confirmReset=false; render(); }
+function allCodes(){ return new Set(S.voters.map(v=>v.code)); }
+function download(name, text){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text],{type:'text/csv'}));
+  a.download = name; document.body.appendChild(a); a.click(); a.remove();
+}
+function enter(e, fn){ if(e.key==='Enter'){ e.preventDefault(); fn(); } }
+const val = id => (document.getElementById(id)||{}).value || '';
+
+/* ---------- Admin actions ---------- */
+function unlock(){
+  if(val('pin') === S.pin){ U.unlocked = true; U.error=''; }
+  else U.error = 'Wrong PIN. Try again.';
+  render();
+}
+function setTitle(v){ S.title = v.trim() || 'Untitled election'; renderHeader(); }
+function setPin(){
+  const p = val('newPin').trim();
+  if(p.length < 4){ U.error='Use at least 4 characters for the PIN.'; U.msg=''; }
+  else { S.pin = p; U.error=''; U.msg='PIN changed.'; }
+  render();
+}
+function addPosition(){
+  const n = val('newPos').trim();
+  if(!n){ U.error='Type a position name, for example "President".'; render(); return; }
+  S.positions.push({id:uid(), name:n, candidates:[]}); U.error=''; render();
+  const el = document.getElementById('cand-'+S.positions[S.positions.length-1].id); if(el) el.focus();
+}
+function removePosition(id){ S.positions = S.positions.filter(p=>p.id!==id); render(); }
+function addCandidate(pid){
+  const n = val('cand-'+pid).trim(); if(!n) return;
+  S.positions.find(p=>p.id===pid).candidates.push({id:uid(), name:n}); render();
+  const el = document.getElementById('cand-'+pid); if(el) el.focus();
+}
+function removeCandidate(pid,cid){
+  const p = S.positions.find(p=>p.id===pid); p.candidates = p.candidates.filter(c=>c.id!==cid); render();
+}
+function addVoterNames(){
+  const names = val('voterNames').split('\n').map(s=>s.trim()).filter(Boolean);
+  if(!names.length){ U.error='Type one voter name per line.'; render(); return; }
+  const ex = allCodes(); names.forEach(n => S.voters.push({name:n, code:mkCode(ex), used:false}));
+  U.error=''; U.msg = names.length + ' voter code(s) created.'; render();
+}
+function addAnonCodes(){
+  const n = Math.max(1, Math.min(500, parseInt(val('anonCount'),10) || 0));
+  const ex = allCodes(); const start = S.voters.length;
+  for(let i=0;i<n;i++) S.voters.push({name:'Voter '+(start+i+1), code:mkCode(ex), used:false});
+  U.error=''; U.msg = n + ' voter code(s) created.'; render();
+}
+function removeVoter(code){ S.voters = S.voters.filter(v=>v.code!==code); render(); }
+function downloadCodes(){
+  download('voter-codes.csv', 'Name,Code\n' + S.voters.map(v=>`"${v.name.replace(/"/g,'""')}",${v.code}`).join('\n'));
+}
+function setStatus(st){
+  U.error=''; U.msg='';
+  if(st==='open'){
+    if(!S.positions.length) U.error='Add at least one position first.';
+    else if(S.positions.some(p=>!p.candidates.length)) U.error='Every position needs at least one candidate.';
+    else if(!S.voters.length) U.error='Add voters before opening the election.';
+  }
+  if(!U.error) S.status = st;
+  render();
+}
+function resetAll(){
+  if(!U.confirmReset){ U.confirmReset = true; render(); return; }
+  S = blank(); U.confirmReset=false; U.voter=null; U.step='code'; U.draft={}; render();
+}
+function loadSample(){ S = sample(); U.voter=null; U.step='code'; U.draft={}; U.confirmReset=false; render(); }
+
+/* ---------- Voter actions ---------- */
+function checkCode(){
+  const c = val('voterCode').trim().toUpperCase();
+  const v = S.voters.find(x=>x.code===c);
+  if(!v) U.error = 'That code was not found. Check it and try again.';
+  else if(v.used) U.error = 'This code has already been used to vote.';
+  else { U.voter = v; U.step='ballot'; U.draft={}; U.error=''; }
+  render();
+}
+function pick(pid, cid){ U.draft[pid] = cid; }
+function reviewVoteBox(){
+  const missing = S.positions.filter(p => !U.draft[p.id]);
+  if(missing.length){ U.error = 'Choose a candidate or "Abstain" for: ' + missing.map(m=>m.name).join(', ') + '.'; }
+  else { U.error=''; U.step='review'; }
+  render();
+}
+function castVote(){
+  if(!U.voter || U.voter.used || S.status!=='open') return;
+  U.voter.used = true;                 // mark the code as used...
+  S.ballots.push({...U.draft});        // ...but store the ballot with no link to the voter
+  U.step='done'; U.voter=null; U.draft={}; render();
+}
+function nextVoter(){ U.step='code'; U.voter=null; U.draft={}; U.error=''; render(); }
+
+/* ---------- Views ---------- */
+function renderHeader(){
+  document.getElementById('elTitle').textContent = S.title;
+  const st = document.getElementById('elStatus');
+  st.className = 'pill ' + S.status;
+  st.textContent = {setup:'Not open yet', open:'Voting open', closed:'Voting closed'}[S.status];
+}
+function banner(){
+  return (U.error ? `<div class="err" role="alert">${esc(U.error)}</div>` : '') +
+         (U.msg ? `<div class="ok" role="status">${esc(U.msg)}</div>` : '');
+}
+
+function viewSetup(){
+  if(!U.unlocked){
+    return `<div class="card">
+      <h2>Admin sign-in</h2>
+      <p class="muted">Enter the admin PIN to manage this election. Sample PIN: <b>1234</b></p>
+      ${banner()}
+      <div class="row">
+        <div class="grow"><label class="f" for="pin">Admin PIN</label>
+        <input id="pin" type="password" autocomplete="off" onkeydown="enter(event,unlock)"></div>
+        <button class="btn" onclick="unlock()">Sign in</button>
+      </div></div>`;
+  }
+  const editable = S.status === 'setup';
+  let h = banner();
+
+  h += `<div class="card"><h2>Election</h2>
+    <label class="f" for="title">Election name</label>
+    <input id="title" type="text" value="${esc(S.title)}" ${editable?'':'disabled'} onchange="setTitle(this.value)">
+    <div class="actions">
+      ${S.status==='setup' ? `<button class="btn" onclick="setStatus('open')">Open voting</button>` : ''}
+      ${S.status==='open' ? `<button class="btn danger" onclick="setStatus('closed')">Close voting</button>` : ''}
+      ${S.status==='closed' ? `<button class="btn secondary" onclick="go('results')">See results</button>` : ''}
+    </div>
+    ${S.status==='open' ? '<p class="muted" style="margin-top:10px">Voting is open. Positions and candidates are locked.</p>' : ''}
+  </div>`;
+
+  h += `<div class="card"><h2>Positions and candidates</h2>`;
+  if(!S.positions.length) h += `<p class="muted">No positions yet. Add the first one below.</p>`;
+  S.positions.forEach(p => {
+    h += `<div style="margin:14px 0"><div class="row" style="justify-content:space-between;align-items:center">
+      <h3 style="margin:0">${esc(p.name)}</h3>
+      ${editable ? `<button class="btn danger small" onclick="removePosition('${p.id}')">Remove position</button>` : ''}</div>`;
+    p.candidates.forEach(c => {
+      h += `<div class="cand"><span>${esc(c.name)}</span>${editable?`<button class="btn secondary small" onclick="removeCandidate('${p.id}','${c.id}')">Remove</button>`:''}</div>`;
+    });
+    if(!p.candidates.length) h += `<p class="muted">No candidates yet.</p>`;
+    if(editable) h += `<div class="row" style="margin-top:8px"><div class="grow">
+      <input id="cand-${p.id}" type="text" placeholder="Candidate name" aria-label="Candidate name for ${esc(p.name)}" onkeydown="enter(event,()=>addCandidate('${p.id}'))"></div>
+      <button class="btn secondary" onclick="addCandidate('${p.id}')">Add candidate</button></div>`;
+    h += `</div>`;
+  });
+  if(editable) h += `<div class="row" style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px">
+    <div class="grow"><label class="f" for="newPos">New position</label>
+    <input id="newPos" type="text" placeholder="e.g. Treasurer, Women's Leader" onkeydown="enter(event,addPosition)"></div>
+    <button class="btn" onclick="addPosition()">Add position</button></div>`;
+  h += `</div>`;
+
+  const usedN = S.voters.filter(v=>v.used).length;
+  h += `<div class="card"><h2>Voters</h2>
+    <p class="muted">Each voter gets a one-time code. ${usedN} of ${S.voters.length} used so far.</p>`;
+  if(S.status !== 'closed') h += `
+    <label class="f" for="voterNames">Add voters by name (one per line)</label>
+    <textarea id="voterNames" placeholder="Akosua Frimpong&#10;Kojo Annan"></textarea>
+    <div class="actions"><button class="btn secondary" onclick="addVoterNames()">Create codes</button></div>
+    <div class="row" style="margin-top:14px"><div style="width:140px"><label class="f" for="anonCount">Or add codes only</label>
+      <input id="anonCount" type="number" min="1" max="500" value="10"></div>
+      <button class="btn secondary" onclick="addAnonCodes()">Create codes</button></div>`;
+  if(S.voters.length){
+    h += `<div class="scroll" style="margin-top:14px"><table><thead><tr><th>Name</th><th>Code</th><th>Status</th><th></th></tr></thead><tbody>` +
+      S.voters.map(v => `<tr><td>${esc(v.name)}</td><td class="code">${v.code}</td><td>${v.used?'Voted':'Not yet'}</td>
+        <td>${(!v.used && S.status!=='closed')?`<button class="btn danger small" onclick="removeVoter('${v.code}')">Remove</button>`:''}</td></tr>`).join('') +
+      `</tbody></table></div>
+      <div class="actions"><button class="btn secondary" onclick="downloadCodes()">Download codes (CSV)</button></div>`;
+  }
+  h += `</div>`;
+
+  h += `<div class="card"><h2>Admin settings</h2>
+    <div class="row"><div class="grow"><label class="f" for="newPin">Change admin PIN</label>
+    <input id="newPin" type="password" autocomplete="off" placeholder="New PIN (4+ characters)"></div>
+    <button class="btn secondary" onclick="setPin()">Change PIN</button></div>
+    <div class="actions" style="margin-top:14px">
+      <button class="btn danger" onclick="resetAll()">${U.confirmReset ? 'Click again to erase everything' : 'Start a new election'}</button>
+      <button class="btn secondary" onclick="loadSample()">Reload sample election</button>
+    </div></div>`;
+  return h;
+}
+
+function viewVote(){
+  if(S.status === 'setup') return `<div class="card center"><h2>Voting has not opened yet</h2><p class="muted">Come back when the election officer opens voting.</p></div>`;
+  if(S.status === 'closed') return `<div class="card center"><h2>Voting has closed</h2><p class="muted">Results are on the Results tab.</p></div>`;
+
+  if(U.step === 'done') return `<div class="card center"><h2>Your vote has been recorded</h2>
+    <p class="muted">Thank you. Your code cannot be used again.</p>
+    <div class="actions" style="justify-content:center"><button class="btn" onclick="nextVoter()">Next voter</button></div></div>`;
+
+  if(U.step === 'code' || !U.voter) return `<div class="card"><h2>Enter your voting code</h2>
+    <p class="muted">Use the 6-character code you were given.</p>${banner()}
+    <div class="row"><div class="grow"><label class="f" for="voterCode">Voting code</label>
+    <input id="voterCode" type="text" maxlength="6" autocomplete="off" autocapitalize="characters" onkeydown="enter(event,checkCode)"></div>
+    <button class="btn" onclick="checkCode()">Continue</button></div></div>`;
+
+  if(U.step === 'review'){
+    let h = `<h2>Check your choices</h2><p class="muted">You cannot change your vote after you cast it.</p>${banner()}<div class="card">`;
+    S.positions.forEach(p => {
+      const id = U.draft[p.id]; const c = p.candidates.find(c=>c.id===id);
+      h += `<div class="cand"><b>${esc(p.name)}</b><span>${c ? esc(c.name) : '<span class="muted">Abstain</span>'}</span></div>`;
+    });
+    h += `</div><div class="actions"><button class="btn" onclick="castVote()">Cast vote</button>
+      <button class="btn secondary" onclick="U.step='ballot';render()">Go back and change</button></div>`;
+    return h;
+  }
+
+  let h = `<h2>Your ballot</h2><p class="muted">Choose one option for each position.</p>${banner()}`;
+  S.positions.forEach(p => {
+    h += `<fieldset class="ballot-pos" style="padding:0;margin:0 0 18px"><legend class="title" style="display:none">${esc(p.name)}</legend>
+      <div class="title">${esc(p.name)}</div><div class="body">`;
+    p.candidates.forEach(c => {
+      h += `<label class="choice"><input type="radio" name="p-${p.id}" ${U.draft[p.id]===c.id?'checked':''} onchange="pick('${p.id}','${c.id}')"><span>${esc(c.name)}</span></label>`;
+    });
+    h += `<label class="choice abstain"><input type="radio" name="p-${p.id}" ${U.draft[p.id]==='abstain'?'checked':''} onchange="pick('${p.id}','abstain')"><span>Abstain</span></label>
+      </div></fieldset>`;
+  });
+  h += `<div class="actions"><button class="btn" onclick="reviewVoteBox()">Review ballot</button></div>`;
+  return h;
+}
+
+function viewResults(){
+  if(S.status !== 'closed'){
+    return `<div class="card center"><h2>Results appear after voting closes</h2>
+      <p class="muted">This keeps the count fair while people are still voting.</p>
+      ${U.unlocked && S.status==='open' ? `<p>${S.voters.filter(v=>v.used).length} of ${S.voters.length} voters have voted so far.</p>
+      <div class="actions" style="justify-content:center"><button class="btn danger" onclick="setStatus('closed')">Close voting now</button></div>` : ''}</div>`;
+  }
+  const voted = S.voters.filter(v=>v.used).length;
+  const pct = S.voters.length ? Math.round(voted/S.voters.length*100) : 0;
+  let h = `<h2>Results</h2><p class="muted">Turnout: ${voted} of ${S.voters.length} voters (${pct}%).</p>`;
+  const rows = [['Position','Candidate','Votes']];
+  S.positions.forEach(p => {
+    const counts = {}; let abst = 0;
+    p.candidates.forEach(c => counts[c.id]=0);
+    S.ballots.forEach(b => { if(b[p.id]==='abstain') abst++; else if(b[p.id] in counts) counts[b[p.id]]++; });
+    const total = Object.values(counts).reduce((a,b)=>a+b,0);
+    const max = Math.max(0, ...Object.values(counts));
+    const leaders = p.candidates.filter(c => counts[c.id]===max && max>0);
+    h += `<div class="card"><h3>${esc(p.name)}</h3>`;
+    p.candidates.slice().sort((a,b)=>counts[b.id]-counts[a.id]).forEach(c => {
+      const n = counts[c.id]; const w = total ? Math.round(n/total*100) : 0;
+      const isLead = leaders.includes(c);
+      rows.push([p.name, c.name, n]);
+      h += `<div class="res-row"><div class="res-top"><span class="${isLead&&leaders.length===1?'winner':''}">${esc(c.name)}${isLead&&leaders.length===1?' (winner)':''}</span><span>${n} (${w}%)</span></div>
+        <div class="track"><div class="fill ${isLead?'win':''}" style="width:${w}%"></div></div></div>`;
+    });
+    if(abst) rows.push([p.name,'Abstained',abst]);
+    h += `<p class="muted" style="margin-top:10px">Abstained: ${abst}.${leaders.length>1 ? ' <b>Tie between ' + leaders.map(l=>esc(l.name)).join(' and ') + '. Your constitution decides what happens next.</b>' : ''}</p></div>`;
+  });
+  window.__rows = rows;
+  h += `<div class="actions"><button class="btn secondary" onclick="download('results.csv', window.__rows.map(r=>r.map(x=>'\"'+String(x).replace(/\"/g,'\"\"')+'\"').join(',')).join('\\n'))">Download results (CSV)</button></div>`;
+  return h;
+}
+
+function render(){
+  renderHeader();
+  ['setup','vote','results'].forEach(t => document.getElementById('tab-'+t).setAttribute('aria-selected', String(U.tab===t)));
+  document.getElementById('main').innerHTML = U.tab==='setup' ? viewSetup() : U.tab==='vote' ? viewVote() : viewResults();
+}
+render();
+</script>
+</body>
+</html>

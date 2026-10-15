@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VoteBox – Design preview</title>
+<style>
+:root{
+  --green:#0F4D3A; --green-deep:#0A3828; --gold:#E0A526; --gold-ink:#3D2B00;
+  --paper:#F1F5F3; --card:#FFFFFF; --ink:#12231C; --muted:#52645B; --line:#D2DDD7;
+  --tint:#E3EFE9; --red:#B3382C; --warn:#FFF1D1;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --green:#3FBF8E; --green-deep:#0A3828; --gold:#E8B544; --gold-ink:#2A1D00;
+    --paper:#0D1713; --card:#15231D; --ink:#E8F1EC; --muted:#9DB1A7; --line:#27382F;
+    --tint:#1D3329; --red:#FF8A7C; --warn:#3A3017;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:2.4rem;letter-spacing:-.03em;margin:0}
+h2{font-size:1.3rem;margin:36px 0 12px;letter-spacing:-.01em}
+h3{font-size:1.05rem;margin:0 0 6px}
+p{margin:0 0 10px}
+.muted{color:var(--muted)}
+.hero{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:20px 0 8px}
+.hero svg{width:96px;height:96px;flex:none}
+.tag{font-size:1.1rem;color:var(--muted);max-width:34ch}
+.swatches{display:flex;flex-wrap:wrap;gap:10px}
+.sw{width:128px;border:1.5px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card)}
+.sw i{display:block;height:56px}
+.sw span{display:block;padding:6px 8px;font-size:.85rem}
+.sw b{display:block}
+.screens{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:20px;align-items:start}
+.phone{border:2px solid var(--ink);border-radius:22px;background:var(--paper);overflow:hidden;max-width:340px;width:100%;margin:0 auto}
+.bar{background:var(--green);color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;font-weight:700}
+@media (prefers-color-scheme:dark){.bar{color:#06241A}}
+.bar svg{width:28px;height:28px}
+.body{padding:14px}
+.cap{text-align:center;margin-top:8px;font-weight:600}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+.stat{display:flex;gap:8px;margin-bottom:12px}
+.stat div{flex:1;background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px}
+.stat b{display:block;font-size:1.4rem;line-height:1.2}
+.stat small{color:var(--muted)}
+.who{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.who small{color:var(--muted);display:block}
+.btn{font:inherit;font-weight:700;font-size:.85rem;padding:6px 12px;border-radius:6px;border:2px solid var(--green);background:var(--green);color:#fff;cursor:default}
+@media (prefers-color-scheme:dark){.btn{color:#06241A}}
+.btn.no{background:transparent;color:var(--red);border-color:var(--red)}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:var(--gold-ink)}
+.row{display:flex;gap:6px}
+.badge{font-size:.78rem;font-weight:700;padding:1px 8px;border-radius:99px;border:1.5px solid var(--gold);color:var(--gold-ink);background:var(--warn)}
+@media (prefers-color-scheme:dark){.badge{color:var(--gold)}}
+.pos{border:2px solid var(--ink);border-radius:6px;overflow:hidden;margin-bottom:10px;background:var(--card)}
+.pos .t{background:var(--ink);color:var(--paper);padding:6px 10px;font-weight:700;font-size:.95rem}
+.pos .c{padding:8px;display:grid;gap:6px}
+.opt{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:6px;padding:7px 9px;font-size:.95rem}
+.opt i{width:22px;height:22px;border:2px solid var(--ink);border-radius:4px;display:grid;place-content:center;flex:none}
+.opt.on{border-color:var(--green);background:var(--tint)}
+.opt.on i{background:var(--green);border-color:var(--green)}
+.opt.on i::after{content:"";width:11px;height:6px;border-left:3px solid #fff;border-bottom:3px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+@media (prefers-color-scheme:dark){.opt.on i::after{border-color:#06241A}}
+.field{border:1.5px solid var(--line);border-radius:6px;padding:8px 10px;margin-bottom:8px;background:var(--card);color:var(--muted);font-size:.92rem}
+.full{width:100%;text-align:center;padding:10px;font-size:1rem}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.cc{border:1.5px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card)}
+.cc.on{border-color:var(--green);box-shadow:0 0 0 2px var(--green)}
+.ph{aspect-ratio:3/4;background:var(--tint);display:grid;place-items:end center;overflow:hidden;color:var(--muted)}
+.ph svg{width:78%;height:88%}
+.nm{display:flex;align-items:center;gap:7px;padding:7px 8px;font-size:.88rem;font-weight:600;line-height:1.25}
+.nm i{width:18px;height:18px;border:2px solid var(--ink);border-radius:4px;flex:none;display:grid;place-content:center}
+.cc.on .nm i{background:var(--green);border-color:var(--green)}
+.cc.on .nm i::after{content:"";width:9px;height:5px;border-left:2.5px solid #fff;border-bottom:2.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+@media (prefers-color-scheme:dark){.cc.on .nm i::after{border-color:#06241A}}
+.note{font-size:.8rem;color:var(--muted);text-align:center;margin:-2px 0 8px}
+.solo{width:56%;margin:0 auto;border:1.5px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card)}
+.yn{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.yn span{text-align:center;font-weight:800;padding:10px;border:2px solid var(--ink);border-radius:6px;background:var(--card)}
+.yn span.on{background:var(--green);border-color:var(--green);color:#fff}
+@media (prefers-color-scheme:dark){.yn span.on{color:#06241A}}
+.rr{margin:9px 0}
+.rt{display:flex;justify-content:space-between;gap:8px;font-weight:600;font-size:.92rem}
+.tr{height:10px;background:var(--tint);border-radius:99px;overflow:hidden;margin-top:3px}
+.fl{height:100%;background:var(--green);border-radius:99px}
+.fl.red{background:var(--red)}
+.live{margin-left:auto;font-size:.75rem;padding:1px 9px;border-radius:99px;background:var(--gold);color:var(--gold-ink)}
+.logos{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.logos .on-light,.logos .on-dark{display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:12px;font-weight:800;font-size:1.4rem;letter-spacing:-.02em}
+.on-light{background:#F1F5F3;color:#12231C;border:1.5px solid #D2DDD7}
+.on-dark{background:#0F4D3A;color:#fff}
+.logos svg{width:44px;height:44px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="logo" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="14" fill="#0F4D3A"/>
+      <g transform="rotate(-8 32 24)">
+        <rect x="22" y="9" width="20" height="28" rx="2.5" fill="#FFFFFF"/>
+        <path d="M26.5 21.5 L30.5 25.5 L38 16.5" fill="none" stroke="#E0A526" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="25" y="30" width="14" height="2" rx="1" fill="#C9D6D0"/>
+      </g>
+      <rect x="12" y="35" width="40" height="19" rx="3.5" fill="#F4F7F5"/>
+      <rect x="20" y="38.5" width="24" height="3.4" rx="1.7" fill="#0F4D3A"/>
+      <rect x="12" y="47" width="40" height="3" fill="#E0A526"/>
+    </symbol>
+    <symbol id="avatar" viewBox="0 0 60 80">
+      <circle cx="30" cy="28" r="13" fill="currentColor"/>
+      <path d="M4 80 C4 56 16 48 30 48 C44 48 56 56 56 80 Z" fill="currentColor"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <div class="hero">
+    <svg role="img" aria-label="VoteBox logo"><use href="#logo"/></svg>
+    <div>
+      <h1>VoteBox</h1>
+      <p class="tag">Fair, private elections for schools, departments and churches.</p>
+    </div>
+  </div>
+  <p class="muted">A ballot paper with a gold tick slides into the box. Green and gold keep it close to home, and the gold is saved for the moments that matter: the tick, approvals and the winner.</p>
+
+  <h2>Logo on light and dark</h2>
+  <div class="logos">
+    <div class="on-light"><svg><use href="#logo"/></svg>VoteBox</div>
+    <div class="on-dark"><svg><use href="#logo"/></svg>VoteBox</div>
+  </div>
+
+  <h2>Colours</h2>
+  <div class="swatches">
+    <div class="sw"><i style="background:#0F4D3A"></i><span><b>Forest green</b>#0F4D3A</span></div>
+    <div class="sw"><i style="background:#E0A526"></i><span><b>Gold</b>#E0A526</span></div>
+    <div class="sw"><i style="background:#F1F5F3"></i><span><b>Paper</b>#F1F5F3</span></div>
+    <div class="sw"><i style="background:#12231C"></i><span><b>Ink</b>#12231C</span></div>
+    <div class="sw"><i style="background:#B3382C"></i><span><b>Alert red</b>#B3382C</span></div>
+  </div>
+
+  <h2>Key screens</h2>
+  <div class="screens">
+
+    <div>
+      <div class="phone">
+        <div class="bar"><svg><use href="#logo"/></svg>Owner dashboard</div>
+        <div class="body">
+          <div class="stat">
+            <div><b>12</b><small>Admins</small></div>
+            <div><b>3</b><small>Waiting</small></div>
+            <div><b>5</b><small>Elections</small></div>
+          </div>
+          <h3>Waiting for approval</h3>
+          <div class="card"><div class="who"><span>Kofi Asante<small>Dept. of Accounting</small></span>
+            <span class="row"><span class="btn">Approve</span><span class="btn no">Reject</span></span></div></div>
+          <div class="card"><div class="who"><span>Rev. Adjei<small>Grace Chapel Youth</small></span>
+            <span class="row"><span class="btn">Approve</span><span class="btn no">Reject</span></span></div></div>
+          <div class="card"><div class="who"><span>Naana Quaye<small>Cape Coast Poly SRC</small></span>
+            <span class="row"><span class="btn">Approve</span><span class="btn no">Reject</span></span></div></div>
+        </div>
+      </div>
+      <div class="cap">You, the owner</div>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="bar"><svg><use href="#logo"/></svg>Accounting Dept. Election</div>
+        <div class="body">
+          <div class="stat">
+            <div><b>86</b><small>Approved</small></div>
+            <div><b>9</b><small>Waiting</small></div>
+          </div>
+          <h3>Voters waiting</h3>
+          <div class="card"><div class="who"><span>Esi Owusu <span class="badge">Pending</span><small>CT/ACC/22/014 · 024 555 0123</small></span></div>
+            <div class="row" style="margin-top:8px"><span class="btn">Approve</span><span class="btn no">Reject</span></div></div>
+          <div class="card"><div class="who"><span>Yaw Darko <span class="badge">Pending</span><small>CT/ACC/22/031 · 055 210 4477</small></span></div>
+            <div class="row" style="margin-top:8px"><span class="btn">Approve</span><span class="btn no">Reject</span></div></div>
+          <div class="card"><div class="who"><span>Kojo Annan <span class="badge">Locked</span><small>CT/ACC/22/007 · too many wrong PINs</small></span></div>
+            <div class="row" style="margin-top:8px"><span class="btn gold">Reset PIN</span></div></div>
+          <span class="btn gold full" style="display:block">Open voting</span>
+        </div>
+      </div>
+      <div class="cap">Part-time admin</div>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="bar"><svg><use href="#logo"/></svg>Your ballot</div>
+        <div class="body">
+          <div class="pos"><div class="t">President</div><div class="c">
+            <div class="grid">
+              <div class="cc on"><div class="ph"><svg><use href="#avatar"/></svg></div><div class="nm"><i></i>Ama Mensah</div></div>
+              <div class="cc"><div class="ph"><svg><use href="#avatar"/></svg></div><div class="nm"><i></i>Kwame Boateng</div></div>
+            </div>
+            <div class="opt"><i></i>Abstain</div>
+          </div></div>
+          <div class="pos"><div class="t">Treasurer (one aspirant)</div><div class="c">
+            <div class="solo"><div class="ph"><svg><use href="#avatar"/></svg></div><div class="nm" style="justify-content:center">Abena Quartey</div></div>
+            <div class="yn"><span class="on">YES</span><span>NO</span></div>
+          </div></div>
+          <p class="note">Placeholder silhouettes. Real passport photos appear here. One aspirant means YES or NO.</p>
+          <span class="btn full" style="display:block">Review ballot</span>
+        </div>
+      </div>
+      <div class="cap">Voter</div>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="bar"><svg><use href="#logo"/></svg>Register to vote</div>
+        <div class="body">
+          <p class="muted">Accounting Dept. Election. The admin will approve your registration.</p>
+          <div class="field">Full name</div>
+          <div class="field">Index number</div>
+          <div class="field">Phone number</div>
+          <div class="field">Department, church, school or institution</div>
+          <div class="field">Choose a 4-digit PIN</div>
+          <span class="btn full" style="display:block">Register</span>
+        </div>
+      </div>
+      <div class="cap">Voter registration</div>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="bar"><svg><use href="#logo"/></svg>Live results <span class="live">Live</span></div>
+        <div class="body">
+          <div class="stat">
+            <div><b>62</b><small>Voted</small></div>
+            <div><b>72%</b><small>Turnout</small></div>
+          </div>
+          <div class="card"><h3>President</h3>
+            <div class="rr"><div class="rt"><span>Ama Mensah</span><span>31 · 50%</span></div><div class="tr"><div class="fl" style="width:50%"></div></div></div>
+            <div class="rr"><div class="rt"><span>Kwame Boateng</span><span>19 · 31%</span></div><div class="tr"><div class="fl" style="width:31%"></div></div></div>
+            <div class="rr"><div class="rt"><span>Esi Owusu</span><span>12 · 19%</span></div><div class="tr"><div class="fl" style="width:19%"></div></div></div>
+          </div>
+          <div class="card"><h3>Treasurer: Abena Quartey</h3>
+            <div class="rr"><div class="rt"><span>YES</span><span>48 · 77%</span></div><div class="tr"><div class="fl" style="width:77%"></div></div></div>
+            <div class="rr"><div class="rt"><span>NO</span><span>14 · 23%</span></div><div class="tr"><div class="fl red" style="width:23%"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">Updates with every vote</div>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="bar"><svg><use href="#logo"/></svg>Sign in to vote</div>
+        <div class="body">
+          <p class="muted">Accounting Dept. Election</p>
+          <div class="field">Index number</div>
+          <div class="field">4-digit PIN</div>
+          <span class="btn full" style="display:block">Continue</span>
+          <p class="note" style="margin-top:10px">Forgot your PIN? Ask your election admin to reset it.</p>
+        </div>
+      </div>
+      <div class="cap">Voter sign-in</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
