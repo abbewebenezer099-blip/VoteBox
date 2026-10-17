@@ -11,7 +11,7 @@
   VB.libLoaded = !!window.supabase;
   VB.keysOk = keysOk;
   VB.configured = keysOk && VB.libLoaded;
-  VB.version = '2026-10-15-b';
+  VB.version = '2026-10-17-c';
   VB.sb = VB.configured ? window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY) : null;
 
   /* ---------- small helpers ---------- */
@@ -60,12 +60,12 @@
   /* ---------- art ---------- */
 
   const LOGO =
-    '<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0F4D3A"/>' +
+    '<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#C8102E"/>' +
     '<g transform="rotate(-8 32 24)"><rect x="22" y="9" width="20" height="28" rx="2.5" fill="#fff"/>' +
-    '<path d="M26.5 21.5 30.5 25.5 38 16.5" fill="none" stroke="#E0A526" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
-    '<rect x="25" y="30" width="14" height="2" rx="1" fill="#C9D6D0"/></g>' +
-    '<rect x="12" y="35" width="40" height="19" rx="3.5" fill="#F4F7F5"/><rect x="20" y="38.5" width="24" height="3.4" rx="1.7" fill="#0F4D3A"/>' +
-    '<rect x="12" y="47" width="40" height="3" fill="#E0A526"/></svg>';
+    '<path d="M26.5 21.5 30.5 25.5 38 16.5" fill="none" stroke="#C8102E" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="25" y="30" width="14" height="2" rx="1" fill="#F2C9D0"/></g>' +
+    '<rect x="12" y="35" width="40" height="19" rx="3.5" fill="#FFFFFF"/><rect x="20" y="38.5" width="24" height="3.4" rx="1.7" fill="#C8102E"/>' +
+    '<rect x="12" y="47" width="40" height="3" fill="#8E0B21"/></svg>';
   VB.LOGO = LOGO;
 
   const AVATAR =
@@ -117,6 +117,12 @@
       )
     );
   };
+
+  /* ---------- back buttons ---------- */
+
+  VB.backLink = (href, label) => '<a class="backbtn" href="' + esc(href) + '">&larr; ' + esc(label || 'Back') + '</a>';
+  VB.backAct = (act, attrs, label) =>
+    '<button type="button" class="backbtn" data-act="' + act + '" ' + (attrs || '') + '>&larr; ' + esc(label || 'Back') + '</button>';
 
   /* ---------- modal ---------- */
 
