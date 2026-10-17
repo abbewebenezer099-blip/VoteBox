@@ -11,6 +11,7 @@
     '<div class="vhead"><h1>' + esc(V.el.title) + '</h1><p class="muted">' + esc(V.el.organization) + '</p>' + VB.pill(V.el.status) + '</div>';
 
   const page = (inner, keep) => VB.render(VB.shell(head() + inner), keep);
+  const bk = () => VB.backAct('vGo', 'data-view="home"');
   const back = '<button class="btn secondary" type="button" data-act="vGo" data-view="home">Back</button>';
   const errBox = '<div class="err" id="ferr" hidden></div>';
   const pinField = (name, label) =>
@@ -39,33 +40,43 @@
 
   VB.acts.vGo = (d) => show(d.view);
 
+  // the two big tiles on the voter's first screen
+  VB.acts.vTile = function (d) {
+    const s = V.el.status;
+    if (d.which === 'register') {
+      if (s === 'setup') return show('register');
+      return VB.toast(s === 'open' ? 'Registration is closed because voting has already opened.' : 'This election has closed.', 'err');
+    }
+    if (s === 'open') return show('signin');
+    VB.toast(s === 'setup' ? 'Voting has not opened yet. Register now and come back when it opens.' : 'Voting has closed.', 'err');
+  };
+
   /* ---------- views ---------- */
 
   const views = {
     home: function () {
       const s = V.el.status;
-      let h = '';
-      if (s === 'setup') {
-        h =
-          '<div class="card"><h2>Registration is open</h2><p>Register with your details and choose a 4-digit PIN. Your election admin will approve you. Voting opens later.</p>' +
-          '<div class="actions"><button class="btn" data-act="vGo" data-view="register">Register to vote</button>' +
-          '<button class="btn secondary" data-act="vGo" data-view="status">Check my registration</button></div></div>';
-      } else if (s === 'open') {
-        h =
-          '<div class="card"><h2>Voting is open</h2><p>Sign in with your index number and your 4-digit PIN.</p>' +
-          '<div class="actions"><button class="btn gold" data-act="vGo" data-view="signin">Sign in to vote</button></div></div>' +
-          '<div class="card"><div class="actions" style="margin-top:0"><button class="btn secondary" data-act="vGo" data-view="status">Check my registration</button>' +
-          '<button class="btn secondary" data-act="vGo" data-view="pin">Change my PIN</button></div></div>';
-      } else {
-        h = '<div class="card"><h2>Voting has closed</h2><p>Thank you to everyone who took part.</p></div>';
-      }
-      if (s !== 'setup') h += '<a class="btn secondary" href="#/e/' + esc(V.slug) + '/results">See live results</a>';
+      const regOpen = s === 'setup';
+      const voteOpen = s === 'open';
+      const regNote = regOpen ? 'Registration is open' : s === 'open' ? 'Registration is closed' : 'Registration is closed';
+      const voteNote = voteOpen ? 'Voting is open now' : s === 'setup' ? 'Opens when the admin starts voting' : 'Voting has closed';
+      let h =
+        '<div class="tiles">' +
+        '<button type="button" class="tile reg" data-act="vTile" data-which="register" aria-disabled="' + !regOpen + '">' +
+        '<b>Register as a voter</b><span>' + regNote + '</span><span class="go">&rarr;</span></button>' +
+        '<button type="button" class="tile vote" data-act="vTile" data-which="vote" aria-disabled="' + !voteOpen + '">' +
+        '<b>Cast your vote</b><span>' + voteNote + '</span><span class="go">&rarr;</span></button></div>';
+      h += '<div class="card"><div class="quick">' +
+        '<button class="btn secondary small" data-act="vGo" data-view="status">Check my registration</button>' +
+        (s !== 'closed' ? '<button class="btn secondary small" data-act="vGo" data-view="pin">Change my PIN</button>' : '') +
+        (s !== 'setup' ? '<a class="btn secondary small" href="#/e/' + esc(V.slug) + '/results">Live results</a>' : '') +
+        '</div></div>';
       return h;
     },
 
     register: function () {
       return (
-        '<div class="card"><h2>Register to vote</h2><form data-form="vRegister" class="stack">' +
+        bk() + '<div class="card"><h2>Register as a voter</h2><form data-form="vRegister" class="stack">' +
         '<label>Full name<input name="name" required minlength="2" maxlength="100" autocomplete="name"></label>' +
         '<label>Index number<input name="index" required maxlength="40" autocapitalize="characters" autocomplete="off"></label>' +
         '<label>Phone number<input type="tel" name="phone" required maxlength="20" autocomplete="tel"></label>' +
@@ -78,7 +89,7 @@
 
     registered: function () {
       return (
-        '<div class="card"><h2>You are registered</h2><p>Your election admin will check your details and approve you. ' +
+        bk() + '<div class="card"><h2>You are registered</h2><p>Your election admin will check your details and approve you. ' +
         'Come back later to check your status. If you forget your PIN, ask your admin to reset it.</p>' +
         '<div class="actions"><button class="btn" data-act="vGo" data-view="status">Check my registration</button>' + back + '</div></div>'
       );
@@ -86,7 +97,7 @@
 
     status: function () {
       return (
-        '<div class="card"><h2>Check my registration</h2><form data-form="vStatus" class="stack">' +
+        bk() + '<div class="card"><h2>Check my registration</h2><form data-form="vStatus" class="stack">' +
         '<label>Index number<input name="index" required maxlength="40" autocapitalize="characters" autocomplete="off"></label>' +
         '<label>Phone number you registered with<input type="tel" name="phone" required maxlength="20"></label>' +
         '<div id="fresult"></div>' + errBox +
@@ -96,7 +107,7 @@
 
     signin: function () {
       return (
-        '<div class="card"><h2>Sign in to vote</h2><form data-form="vSignin" class="stack">' +
+        bk() + '<div class="card"><h2>Cast your vote</h2><p class="muted">Sign in with your index number and PIN.</p><form data-form="vSignin" class="stack">' +
         '<label>Index number<input name="index" required maxlength="40" autocapitalize="characters" autocomplete="off" value="' + esc(V.index) + '"></label>' +
         pinField('pin', 'Your 4-digit PIN') + errBox +
         '<div class="actions" style="margin:0"><button class="btn gold" type="submit">Continue</button>' + back + '</div>' +
@@ -106,7 +117,7 @@
 
     pin: function () {
       return (
-        '<div class="card"><h2>Change my PIN</h2><form data-form="vPin" class="stack">' +
+        bk() + '<div class="card"><h2>Change my PIN</h2><form data-form="vPin" class="stack">' +
         '<label>Index number<input name="index" required maxlength="40" autocapitalize="characters" autocomplete="off"></label>' +
         pinField('old', 'Current PIN') + pinField('next', 'New 4-digit PIN') + errBox +
         '<div class="actions" style="margin:0"><button class="btn" type="submit">Change PIN</button>' + back + '</div></form></div>'
@@ -116,7 +127,7 @@
     ballot: function () {
       const b = V.ballot;
       if (!b) return views.home();
-      let h = '<h2>Your ballot</h2><p class="muted">Choose one option for each position.</p>';
+      let h = VB.backAct('cancelVote') + '<h2>Your ballot</h2><p class="muted">Choose one option for each position. <b>Abstain</b> means you are not voting for anyone for that position.</p>';
       b.positions.forEach(function (p) {
         const sel = V.draft[p.id];
         h += '<div class="pos" role="group" aria-label="' + esc(p.name) + '"><div class="pos-title">' + esc(p.name) + '</div><div class="pos-body">';
@@ -141,7 +152,7 @@
     },
 
     review: function () {
-      let h = '<h2>Check your choices</h2><p class="muted">You cannot change your vote after you cast it.</p><div class="card summary">';
+      let h = VB.backAct('vGo', 'data-view="ballot"') + '<h2>Check your choices</h2><p class="muted">You cannot change your vote after you cast it.</p><div class="card summary">';
       V.ballot.positions.forEach(function (p) {
         h += '<div class="cand"><b>' + esc(p.name) + '</b><span>' + esc(label(p, V.draft[p.id])) + '</span></div>';
       });
@@ -276,7 +287,7 @@
 
   async function resultsView() {
     page(
-      '<h2>Live results</h2><div id="resbody"><p class="muted">Loading&hellip;</p></div>' +
+      VB.backLink('#/e/' + V.slug) + '<h2>Live results</h2><div id="resbody"><p class="muted">Loading&hellip;</p></div>' +
         '<div class="actions"><a class="btn secondary" href="#/e/' + esc(V.slug) + '">Back</a></div>'
     );
     const refresh = async function () {

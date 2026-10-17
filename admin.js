@@ -86,7 +86,7 @@
     if (el.status === 'open') control = '<button class="btn danger" data-act="closeVoting">Close voting</button>';
 
     const h =
-      '<a class="back" href="#/admin">&larr; My elections</a>' +
+      VB.backLink('#/admin', 'My elections') +
       '<div class="split"><div><h1>' + esc(el.title) + '</h1><p class="muted">' + esc(el.organization) + '</p></div>' +
       '<div>' + VB.pill(el.status) + (el.status === 'open' ? '<span class="live">Live</span>' : '') + '</div></div>' +
       '<div class="card"><b>Voter link</b><p><code>' + esc(link) + '</code></p>' +

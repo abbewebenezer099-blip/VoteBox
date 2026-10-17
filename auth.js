@@ -55,15 +55,18 @@
           '<button class="btn" type="submit">Go</button></form></div>' +
           '<div class="card"><h2>Running an election?</h2>' +
           '<p class="muted">Register as a part-time admin. After the VoteBox owner approves you, you can create elections, register voters and watch live results.</p>' +
-          '<div class="actions"><a class="btn" href="#/register">Register as admin</a><a class="btn secondary" href="#/login">Admin login</a></div></div>'
+          '<div class="actions"><a class="btn" href="#/register">Register as admin</a><a class="btn secondary" href="#/login">Admin login</a></div></div>' +
+          '<div class="card" id="install" hidden><h2>Install VoteBox</h2><p class="muted">Add VoteBox to your phone\u2019s home screen so it opens like an app.</p>' +
+          '<div class="actions"><button class="btn gold" data-act="install">Install app</button></div></div>'
       )
     );
+    if (VB.showInstall) VB.showInstall();
   };
 
   VB.viewLogin = function () {
     VB.render(
       VB.shell(
-        '<div class="card"><h2>Admin login</h2><form data-form="login" class="stack">' +
+        VB.backLink('#/') + '<div class="card"><h2>Admin login</h2><form data-form="login" class="stack">' +
           '<label>Email<input type="email" name="email" required autocomplete="email"></label>' +
           '<label>Password<input type="password" name="password" required autocomplete="current-password"></label>' +
           '<div class="err" id="ferr" hidden></div>' +
@@ -76,7 +79,7 @@
   VB.viewRegister = function () {
     VB.render(
       VB.shell(
-        '<div class="card"><h2>Register as a part-time admin</h2>' +
+        VB.backLink('#/') + '<div class="card"><h2>Register as a part-time admin</h2>' +
           '<p class="muted">You will be able to run elections once the VoteBox owner approves your account.</p>' +
           '<form data-form="register" class="stack">' +
           '<label>Full name<input name="full_name" required minlength="2" maxlength="100" autocomplete="name"></label>' +

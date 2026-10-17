@@ -77,6 +77,36 @@
     if (el && VB.inputs[el.dataset.input]) VB.inputs[el.dataset.input](el);
   });
 
+  /* ---------- install on the phone ---------- */
+
+  VB.installEvt = null;
+  VB.isInstalled = () =>
+    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+
+  VB.showInstall = function () {
+    const box = document.getElementById('install');
+    if (box) box.hidden = !VB.installEvt || VB.isInstalled();
+  };
+
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    VB.installEvt = e;
+    VB.showInstall();
+  });
+  window.addEventListener('appinstalled', function () {
+    VB.installEvt = null;
+    VB.showInstall();
+    VB.toast('VoteBox is installed');
+  });
+
+  VB.acts.install = async function () {
+    if (!VB.installEvt) return;
+    VB.installEvt.prompt();
+    await VB.installEvt.userChoice;
+    VB.installEvt = null;
+    VB.showInstall();
+  };
+
   /* ---------- go ---------- */
 
   VB.route();

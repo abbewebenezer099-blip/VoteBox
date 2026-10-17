@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VoteBox</title>
+<meta name="theme-color" content="#C8102E">
+<meta name="description" content="Fair, private elections for schools, departments and churches.">
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-maskable.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="VoteBox">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div id="app"><p style="font:16px system-ui,sans-serif;text-align:center;margin-top:40px">Loading VoteBox&hellip;</p></div>
+<noscript><p style="font:16px system-ui,sans-serif;text-align:center">VoteBox needs JavaScript. Please turn it on in your browser.</p></noscript>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  // Remember anything that goes wrong while loading, so we can show it on screen.
+  window.__errs = [];
+  window.addEventListener('error', function (e) {
+    var t = e.target;
+    if (t && (t.src || t.href) && t !== window) window.__errs.push('Could not load: ' + String(t.src || t.href).split('/').slice(-2).join('/'));
+    else window.__errs.push((e.message || 'Error') + (e.filename ? ' (' + String(e.filename).split('/').pop() + ' line ' + e.lineno + ')' : ''));
+  }, true);
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>window.supabase || document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>');</script>
+<script src="config.js"></script>
+<script src="core.js"></script>
+<script src="auth.js"></script>
+<script src="owner.js"></script>
+<script src="admin.js"></script>
+<script src="voter.js"></script>
+<script src="main.js"></script>
+<script>
+  // If the app could not start, say exactly what went wrong instead of showing a blank screen.
+  if (!window.VB || !window.VB.route) {
+    var items = (window.__errs || []).map(function (x) { return '<li>' + String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</li>'; }).join('');
+    document.getElementById('app').innerHTML =
+      '<div style="font:16px/1.5 system-ui,sans-serif;max-width:520px;margin:40px auto;padding:0 16px">' +
+      '<h2>VoteBox could not start</h2><p>Details:</p><ul>' + (items || '<li>No details. Refresh the page and try again.</li>') + '</ul></div>';
+  }
+</script>
+<script>
+  // lets the phone install VoteBox like an app
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+  }
+</script>
+</body>
+</html>
