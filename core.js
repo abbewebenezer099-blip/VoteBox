@@ -11,7 +11,7 @@
   VB.libLoaded = !!window.supabase;
   VB.keysOk = keysOk;
   VB.configured = keysOk && VB.libLoaded;
-  VB.version = '2026-10-17-c';
+  VB.version = '2026-10-17-d';
   VB.sb = VB.configured ? window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY) : null;
 
   /* ---------- small helpers ---------- */

@@ -50,8 +50,8 @@
       VB.shell(
         '<div class="hero">' + VB.LOGO + '<h1>VoteBox</h1><p>Fair, private elections for schools, departments and churches.</p></div>' +
           '<div class="card"><h2>Voting in an election?</h2>' +
-          '<p class="muted">Open the link your election admin gave you, or type the election code here.</p>' +
-          '<form data-form="gocode" class="row"><div class="grow"><input name="code" required placeholder="Election code" autocomplete="off" autocapitalize="off" aria-label="Election code"></div>' +
+          '<p class="muted">Type the election code your admin gave you, or open the link they sent.</p>' +
+          '<form data-form="gocode" class="row"><div class="grow"><input name="code" required placeholder="Election code, e.g. 4821" inputmode="numeric" autocomplete="off" autocapitalize="off" aria-label="Election code"></div>' +
           '<button class="btn" type="submit">Go</button></form></div>' +
           '<div class="card"><h2>Running an election?</h2>' +
           '<p class="muted">Register as a part-time admin. After the VoteBox owner approves you, you can create elections, register voters and watch live results.</p>' +

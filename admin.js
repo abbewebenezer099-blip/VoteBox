@@ -89,8 +89,11 @@
       VB.backLink('#/admin', 'My elections') +
       '<div class="split"><div><h1>' + esc(el.title) + '</h1><p class="muted">' + esc(el.organization) + '</p></div>' +
       '<div>' + VB.pill(el.status) + (el.status === 'open' ? '<span class="live">Live</span>' : '') + '</div></div>' +
-      '<div class="card"><b>Voter link</b><p><code>' + esc(link) + '</code></p>' +
-      '<div class="actions"><button class="btn secondary small" data-act="copyLink" data-link="' + esc(link) + '">Copy link</button>' +
+      '<div class="card"><b>Election code</b><div class="bigcode">' + esc(el.slug) + '</div>' +
+      '<p class="muted small">Tell voters to open VoteBox and type this code. You can also send them this link:</p>' +
+      '<p class="small"><code>' + esc(link) + '</code></p>' +
+      '<div class="actions"><button class="btn secondary small" data-act="copyLink" data-link="' + esc(el.slug) + '">Copy code</button>' +
+      '<button class="btn secondary small" data-act="copyLink" data-link="' + esc(link) + '">Copy link</button>' +
       (control ? control : '') + '</div>' +
       '<label class="top-gap" style="display:flex;gap:8px;align-items:center;font-weight:400">' +
       '<input type="checkbox" data-act="togglePublic" ' + (el.public_results ? 'checked' : '') + ' style="width:auto"> Show live results on the voter link</label>' +
